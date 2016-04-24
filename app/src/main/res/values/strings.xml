@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Hackmashers</string>
+    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">
+        AIzaSyCLjHAYu9YK0jgTa9EwLeKNljPBgXwmnt0
+    </string>
+    <string name="search_hint">Search for a location</string>
+    <!--Temporary-->
+</resources>
