@@ -1,6 +1,4 @@
 <resources>
     <string name="app_name">Hackmashers</string>
     <string name="search_hint">Search for a location</string>
-    <string name="title_activity_maps2">Map</string>
-    <!--Temporary-->
 </resources>
