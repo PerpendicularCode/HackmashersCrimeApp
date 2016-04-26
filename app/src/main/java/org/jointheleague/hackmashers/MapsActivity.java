@@ -3,6 +3,7 @@ package org.jointheleague.hackmashers;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -11,6 +12,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -26,6 +29,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.lang.reflect.Field;
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     public final static int REQUEST_CODE_LOCATION = 1;
@@ -34,6 +39,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap googleMap;
     private GoogleApiClient googleApiClient;//Unused right now
     private LocationManager locationManager;
+    private PlaceAutocompleteFragment autocompleteFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +52,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         autocompleteFragment.setHint(getString(R.string.search_hint));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -58,6 +64,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onError(Status status) {
             }
         });
+        makeSearchBarPretty();
+    }
+
+    private void makeSearchBarPretty() {
+        try {
+            Field searchButtonField = autocompleteFragment.getClass().getDeclaredField("zzaRh");
+            searchButtonField.setAccessible(true);
+            ImageButton searchButton = (ImageButton) searchButtonField.get(autocompleteFragment);
+            Field clearButtonField = autocompleteFragment.getClass().getDeclaredField("zzaRi");
+            clearButtonField.setAccessible(true);
+            ImageButton clearButton = (ImageButton) clearButtonField.get(autocompleteFragment);
+            Field searchInputField = autocompleteFragment.getClass().getDeclaredField("zzaRj");
+            searchInputField.setAccessible(true);
+            EditText searchInput = (EditText) searchInputField.get(autocompleteFragment);
+
+            searchButton.setColorFilter(Color.BLACK);
+            searchButton.setImageAlpha(Color.alpha(ContextCompat.getColor(this, R.color.halfTransparent)));
+            clearButton.setColorFilter(Color.BLACK);
+            clearButton.setImageAlpha(Color.alpha(ContextCompat.getColor(this, R.color.halfTransparent)));
+            searchInput.setTextColor(ContextCompat.getColor(this, R.color.searchedText));
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -95,7 +126,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString())/*.icon(BitmapDescriptorFactory.fromResource(R.mipmap.green_dot)).anchor(0.5f, 0.5f).infoWindowAnchor(0.5f, 0.5f)*/);
         CameraUpdate cameraUpdate;
         if (place.getViewport() != null) {
-            cameraUpdate = CameraUpdateFactory.newLatLngBounds(place.getViewport(), 50);
+            cameraUpdate = CameraUpdateFactory.newLatLngBounds(place.getViewport(), 25);
         } else {
             cameraUpdate = CameraUpdateFactory.newLatLngZoom(place.getLatLng(), DEFAULT_ZOOM);
         }
