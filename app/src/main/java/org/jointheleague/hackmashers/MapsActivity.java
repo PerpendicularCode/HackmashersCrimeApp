@@ -33,6 +33,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +61,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public final static String WALKING = "walking";
     public final static String BICYCLING = "bicycling";
     public final static String TRANSIT = "transit";
+
+    public final static String[] CRIME_TYPES = {
+            "VEHICLE BREAK-IN/THEFT",
+            "THEFT/LARCENY",
+            "FRAUD",
+            "ASSAULT",
+            "SEX CRIMES",
+            "VANDALISM",
+            "BURGLARY",
+            "MOTOR VEHICLE THEFT",
+            "ROBBERY",
+            "DRUGS/ALCOHOL VIOLATIONS",
+            "DUI",
+            "WEAPONS",
+            "ARSON",
+            "HOMICIDE"
+    };
+    public final static int DATE_INDEX = 0;
+    public final static int TIME_INDEX = 1;
+    public final static int TYPE_INDEX = 2;
+    public final static int LAT_INDEX = 3;
+    public final static int LNG_INDEX = 4;
 
     private GoogleMap googleMap;
     private GoogleApiClient googleApiClient;//Unused right now
@@ -134,6 +159,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    private void drawCrime() {
+        InputStream inputStream = getResources().openRawResource(R.raw.random_sample_10000);
+        ArrayList<String[]> incidents = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        try {
+            String csvLine;
+            while ((csvLine = reader.readLine()) != null) {
+                String[] row = csvLine.split(", ");
+                incidents.add(row);
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error in reading CSV file: " + e);
+        }
+        ArrayList<LatLng> locations = new ArrayList<>();
+        for (String[] incident : incidents) {
+            locations.add(new LatLng(Double.parseDouble(incident[LAT_INDEX]), Double.parseDouble(incident[LNG_INDEX])));
+            //googleMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(incident[LAT_INDEX]), Double.parseDouble(incident[LNG_INDEX]))).title(CRIME_TYPES[Integer.parseInt(incident[TYPE_INDEX])]));
+        }
+        HeatmapTileProvider provider = new HeatmapTileProvider.Builder().data(locations).gradient(new Gradient(new int[]{Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED}, new float[]{1 / 16.0f, 2 / 16.0f, 4 / 16.0f, 8 / 16.0f, 1})).build();
+        googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+    }
+
     private void requestLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
@@ -193,6 +241,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.googleMap.setMyLocationEnabled(true);
         }
         setupListeners();
+        drawCrime();
     }
 
     @Override
