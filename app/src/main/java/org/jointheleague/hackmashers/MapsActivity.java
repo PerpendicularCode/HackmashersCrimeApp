@@ -177,6 +177,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         getDirectionsTask = new GetDirections();
         getDirectionsTask.execute(startCoordinates, place.getLatLng(), WALKING);
+        //TODO: Show data about destination by using DataUtils.getCrimeRate(place.getLatLng)
     }
 
     @Override
