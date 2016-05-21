@@ -2,6 +2,7 @@ package org.jointheleague.hackmashers;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -14,6 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -116,6 +119,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatMap));
     }
 
+    public void startSettings(View v){
+        Intent intent = new Intent(this, SettingsActivity.class);
+    }
+
+
     private void pinSearchResult(Place place) {
         googleMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
         googleMap.animateCamera(MapUtil.zoomToPlaceAndLatLng(place, getLastKnownLatLng()));
@@ -132,7 +140,14 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         }
         getDirectionsTask = new GetDirections();
         getDirectionsTask.execute(startCoordinates, place.getLatLng(), WALKING);
-        //TODO: Show data about destination by using DataUtils.getCrimeRate(place.getLatLng)
+
+        Marker currentSelected = this.googleMap.addMarker(new MarkerOptions()
+                .position(place.getLatLng())
+                .title(place.getAddress().toString())
+                .snippet("Overall Crime: 0 "));
+        //TODO: Add multiple lines to the Marker
+        currentSelected.showInfoWindow();
+
     }
 
     @Override
