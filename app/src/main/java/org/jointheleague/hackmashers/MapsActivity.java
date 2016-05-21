@@ -75,6 +75,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
+                final LatLng MELBOURNE = new LatLng(-37.81319, 144.96298);//TODO might be unneeded
                 MapsActivity.this.googleMap = googleMap;
                 if (hasLocationPermissions()) {
                     //noinspection ResourceType
