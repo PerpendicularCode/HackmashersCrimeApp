@@ -32,21 +32,31 @@ public class MapUtil {
         return CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM);
     }
 
-    public static CameraUpdate zoomToRoute(LatLngBounds routeBounds, Place endpoint) {
-        CameraUpdate cameraUpdate;
-        if (endpoint.getViewport() != null) {
-            LatLngBounds placeBounds = endpoint.getViewport();
-            LatLngBounds bounds = routeBounds.including(placeBounds.southwest).including(placeBounds.northeast);
-            cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, ZOOM_PADDING_PIXELS);
-        } else {
-            LatLngBounds bounds = routeBounds.including(endpoint.getLatLng());
-            cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, ZOOM_PADDING_PIXELS);
+    /**
+     * Provides CameraUpdate to zoom to a route on the map, and includes the start and destination Places in the view as well. Leave start and/or destination null if not available.
+     */
+    public static CameraUpdate zoomToRoute(LatLngBounds routeBounds, Place start, Place destination) {
+        LatLngBounds bounds = routeBounds;
+        if (start != null) {
+            bounds = includePlaceInBounds(bounds, start);
         }
-        return cameraUpdate;
+        if (destination != null) {
+            bounds = includePlaceInBounds(bounds, destination);
+        }
+        return CameraUpdateFactory.newLatLngBounds(bounds, ZOOM_PADDING_PIXELS);
+    }
+
+    private static LatLngBounds includePlaceInBounds(LatLngBounds bounds, Place place) {
+        if (place.getViewport() != null) {
+            LatLngBounds placeBounds = place.getViewport();
+            bounds = bounds.including(placeBounds.southwest).including(placeBounds.northeast);
+        } else {
+            bounds = bounds.including(place.getLatLng());
+        }
+        return bounds;
     }
 
     public static ArrayList<LatLng> decodePolyline(String encoded) {
-
         ArrayList<LatLng> poly = new ArrayList<>();
         int index = 0, len = encoded.length();
         int lat = 0, lng = 0;

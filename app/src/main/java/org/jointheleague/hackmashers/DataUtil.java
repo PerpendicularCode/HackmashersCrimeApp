@@ -49,7 +49,6 @@ public class DataUtil {
 
     public void loadData() {
         //TODO:Set Data_Size vars and load data into the int array
-
     }
 
     public static HeatmapTileProvider getCrimeHeatMap(InputStream data) {
@@ -63,12 +62,14 @@ public class DataUtil {
             }
             data.close();
         } catch (IOException e) {
-            throw new RuntimeException("Error in reading CSV file: " + e);
+            throw new RuntimeException("Error reading CSV file: " + e);
         }
         ArrayList<LatLng> locations = new ArrayList<>();
         for (String[] incident : incidents) {
             locations.add(new LatLng(Double.parseDouble(incident[LAT_INDEX]), Double.parseDouble(incident[LNG_INDEX])));
         }
-        return new HeatmapTileProvider.Builder().data(locations).gradient(new Gradient(COLORS, START_POINTS)).build();
+        return new HeatmapTileProvider.Builder()
+                .data(locations)
+                .gradient(new Gradient(COLORS, START_POINTS)).build();
     }
 }

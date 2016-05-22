@@ -45,16 +45,10 @@ import java.lang.reflect.Field;
 public class MapsActivity extends AppCompatActivity implements LocationListener, PlaceSelectionListener {
 
     public static final int REQUEST_CODE_LOCATION = 1;
-
-    public static final String DIRECTIONS_API = "https://maps.googleapis.com/maps/api/directions/json?";
-    public final static String DRIVING = "driving";
-    public final static String WALKING = "walking";
-    public final static String BICYCLING = "bicycling";
-    public final static String TRANSIT = "transit";
+    public static final String[] LOCATION_PERMISSIONS = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
     private GoogleMap googleMap;
     private Polyline currentRoute;
-    private Place searchedPlace;
     private GetDirections getDirectionsTask;
     private LocationManager locationManager;
 
@@ -68,6 +62,10 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         autocompleteFragment.setHint(getString(R.string.search_hint));
         autocompleteFragment.setOnPlaceSelectedListener(this);
         makeSearchBarPretty(autocompleteFragment);
+    }
+
+    public void startSettings(View v) {
+        Intent intent = new Intent(this, SettingsActivity.class);
     }
 
     private void setupMap() {
@@ -91,14 +89,8 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         if (hasLocationPermissions()) {
             requestLocationUpdates();
         } else {
-            requestLocationPermissions();
+            ActivityCompat.requestPermissions(this, LOCATION_PERMISSIONS, REQUEST_CODE_LOCATION);
         }
-    }
-
-    private void requestLocationUpdates() {
-        if (hasLocationPermissions())
-            //noinspection ResourceType
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
     }
 
     private boolean hasLocationPermissions() {
@@ -106,54 +98,6 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestLocationPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                REQUEST_CODE_LOCATION);
-    }
-
-    private void drawCrime() {
-        InputStream data = getResources().openRawResource(R.raw.random_sample_10000);
-        HeatmapTileProvider heatMap = DataUtil.getCrimeHeatMap(data);
-        googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatMap));
-    }
-
-    public void startSettings(View v){
-        Intent intent = new Intent(this, SettingsActivity.class);
-    }
-
-
-    private void pinSearchResult(Place place) {
-        googleMap.addMarker(new MarkerOptions().position(place.getLatLng()).title(place.getName().toString()));
-        googleMap.animateCamera(MapUtil.zoomToPlaceAndLatLng(place, getLastKnownLatLng()));
-    }
-
-    @Override
-    public void onPlaceSelected(Place place) {
-        searchedPlace = place;
-        pinSearchResult(place);
-        LatLng startCoordinates = null;//Temporary for testing
-        startCoordinates = getLastKnownLatLng();
-        if (getDirectionsTask != null) {
-            getDirectionsTask.cancel(true);//TODO Make sure this doesn't break everything
-        }
-        getDirectionsTask = new GetDirections();
-        getDirectionsTask.execute(startCoordinates, place.getLatLng(), WALKING);
-
-        Marker currentSelected = this.googleMap.addMarker(new MarkerOptions()
-                .position(place.getLatLng())
-                .title(place.getAddress().toString())
-                .snippet("Overall Crime: 0 "));
-        //TODO: Add multiple lines to the Marker
-        currentSelected.showInfoWindow();
-
-    }
-
-    @Override
-    public void onError(Status status) {
-
     }
 
     @Override
@@ -169,8 +113,15 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
+    private void requestLocationUpdates() {
+        if (hasLocationPermissions())
+            //noinspection ResourceType
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
+    }
+
     @Override
     public void onLocationChanged(Location location) {
+        //Zooms to current location on startup
         googleMap.animateCamera(MapUtil.zoomToLocation(location));
         preventMoreUpdates();
     }
@@ -182,7 +133,39 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
-    private LatLng getLastKnownLatLng() {
+    private void drawCrime() {
+        InputStream data = getResources().openRawResource(R.raw.random_sample_1000);
+        HeatmapTileProvider heatMap = DataUtil.getCrimeHeatMap(data);
+        googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatMap));
+    }
+
+    @Override
+    public void onPlaceSelected(Place place) {
+        pinPlace(place);
+        LatLng startLatLng = getCurrentLatLng();//TODO Make a comprehensive way to select start and destination locations for routing.
+        Place destinationPlace = place;
+        if (getDirectionsTask != null) {
+            getDirectionsTask.cancel(true);//TODO Make sure this works. This interrupts the current AsyncTask thread if it still running, and should stop it.
+        }
+        getDirectionsTask = new GetDirections();
+        getDirectionsTask.execute(new RouteInfo(startLatLng, destinationPlace, RouteInfo.WALKING));
+
+        Marker currentSelected = this.googleMap.addMarker(new MarkerOptions()
+                .position(place.getLatLng())
+                .title(place.getAddress().toString())
+                .snippet("Overall Crime: 0 "));
+        //TODO: Add multiple lines to the Marker
+        currentSelected.showInfoWindow();
+    }
+
+    private void pinPlace(Place place) {
+        googleMap.addMarker(new MarkerOptions()
+                .position(place.getLatLng())
+                .title(place.getName().toString()));
+        googleMap.animateCamera(MapUtil.zoomToPlaceAndLatLng(place, getCurrentLatLng()));
+    }
+
+    private LatLng getCurrentLatLng() {
         if (hasLocationPermissions()) {
             //noinspection ResourceType
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -191,31 +174,15 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         return null;
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    class GetDirections extends AsyncTask<Object, Void, JSONObject> {
+    class GetDirections extends AsyncTask<RouteInfo, Void, JSONObject> {
+        RouteInfo routeInfo;
 
         @Override
-        protected JSONObject doInBackground(Object... params) {
-            LatLng start = (LatLng) params[0];
-            LatLng destination = (LatLng) params[1];
-            String mode = (String) params[2];
+        protected JSONObject doInBackground(RouteInfo... routeInfo) {
+            this.routeInfo = routeInfo[0];
             try {
-                String url = getDirectionsURL(start, destination, mode);
-                Log.d("URL", url);
+                String url = this.routeInfo.getGoogleDirectionsURL();
+                Log.d("Directions URL", url);
                 return JsonUtil.getJsonFromURL(url);
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -232,17 +199,15 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
                 if (currentRoute != null) {
                     currentRoute.remove();
                 }
-                currentRoute = googleMap.addPolyline(new PolylineOptions().add(points).color(ContextCompat.getColor(MapsActivity.this, R.color.colorPrimary)));
+                currentRoute = googleMap.addPolyline(new PolylineOptions()
+                        .add(points)
+                        .color(ContextCompat.getColor(MapsActivity.this, R.color.colorPrimary)));
                 LatLngBounds routeBounds = JsonUtil.getBoundsFromDirections(directionsJson);
-                googleMap.animateCamera(MapUtil.zoomToRoute(routeBounds, searchedPlace));
+                googleMap.animateCamera(MapUtil.zoomToRoute(routeBounds, routeInfo.getStartPlace(), routeInfo.getDestinationPlace()));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private String getDirectionsURL(LatLng start, LatLng destination, String mode) {
-        return DIRECTIONS_API + "origin=" + start.latitude + "," + start.longitude + "&destination=" + destination.latitude + "," + destination.longitude + "&mode=" + mode;
     }
 
     private void makeSearchBarPretty(PlaceAutocompleteFragment autocompleteFragment) {
@@ -268,5 +233,25 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onError(Status status) {
+        Log.e("Error", "Error when selecting a place: " + status);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        Log.d("Location provider", "Location provider status changed: " + status);
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        Log.d("Location provider", "Location provider enabled");
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Log.d("Location provider", "Location provider disabled");
     }
 }

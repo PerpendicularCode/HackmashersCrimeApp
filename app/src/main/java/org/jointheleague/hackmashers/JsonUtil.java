@@ -15,6 +15,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 
 public class JsonUtil {
+
     public static JSONObject getJsonFromURL(String urlString) throws IOException, JSONException {
         try {
             URL url = new URL(urlString);
