@@ -65,7 +65,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     }
 
     public void startSettings(View v) {
+
+        Log.d("settingsStart", "Started Method Click");
+
         Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     private void setupMap() {
@@ -103,7 +107,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
+    switch (requestCode) {
             case REQUEST_CODE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

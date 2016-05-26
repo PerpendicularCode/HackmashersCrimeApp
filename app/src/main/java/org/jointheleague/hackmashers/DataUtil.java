@@ -13,6 +13,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class DataUtil {
+
+    public static boolean IS_HEATMAP = true;
+    //Note: Radius must be between 10 and 50
+    public static int HEATMAP_RADIUS = 20;
+    //Note: Default is 0.7, between 0 and 1...obviously
+    public static float HEATMAP_OPACITY = 0.7f;
+
     public final static int[] COLORS = new int[]{Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
     public final static float[] START_POINTS = new float[]{1 / 16.0f, 2 / 16.0f, 4 / 16.0f, 8 / 16.0f, 1};
 
@@ -52,6 +59,9 @@ public class DataUtil {
     }
 
     public static HeatmapTileProvider getCrimeHeatMap(InputStream data) {
+        if(!IS_HEATMAP){
+            HEATMAP_OPACITY = 0f;
+        }
         ArrayList<String[]> incidents = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(data));
         try {
@@ -68,8 +78,12 @@ public class DataUtil {
         for (String[] incident : incidents) {
             locations.add(new LatLng(Double.parseDouble(incident[LAT_INDEX]), Double.parseDouble(incident[LNG_INDEX])));
         }
+
+
         return new HeatmapTileProvider.Builder()
                 .data(locations)
+                .radius(HEATMAP_RADIUS)
+                .opacity(HEATMAP_OPACITY)
                 .gradient(new Gradient(COLORS, START_POINTS)).build();
     }
 }

@@ -12,25 +12,60 @@
     tools:context="org.jointheleague.hackmashers.SettingsActivity"
     tools:showIn="@layout/activity_settings">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Settings"
-        android:textSize="34dp"
-        android:paddingLeft="15dp"
-        android:paddingTop="15dp"
-        android:id="@+id/textView" />
 
     <Switch
+
         android:text="Show Heatmap"
         android:paddingLeft="25dp"
         android:textSize="18dp"
         android:paddingRight="18dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/stch"
+        android:layout_height="30dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:layout_marginBottom="10dp"
+        android:src="@mipmap/crimescale"
+        android:scaleType="fitXY"
+        android:paddingBottom="0dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Heatmap Scale"
+        android:id="@+id/textView"
+        android:paddingBottom="20dp"
+        android:layout_above="@+id/imageView"
+        android:layout_centerHorizontal="true" />
+
+    <SeekBar
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekBar"
+        android:progressBackgroundTint="@android:color/darker_gray"
+        android:paddingTop="20dp"
+        android:layout_below="@+id/textView2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="19dp"
+        android:text="Heatmap Opacity"
+        android:id="@+id/textView2"
+        android:layout_below="@+id/stch"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="43dp" />
 
 
 </RelativeLayout>
