@@ -10,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -32,6 +33,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
@@ -52,6 +54,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private GetDirections getDirectionsTask;
     private LocationManager locationManager;
 
+    public HeatmapTileProvider heatmap;
+    public TileOverlay heatmapOverlay;
+
+    private InputStream data;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,12 +69,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         autocompleteFragment.setHint(getString(R.string.search_hint));
         autocompleteFragment.setOnPlaceSelectedListener(this);
         makeSearchBarPretty(autocompleteFragment);
+        //Setup data
+        data = getResources().openRawResource(R.raw.random_sample_1000);
     }
 
     public void startSettings(View v) {
-
-        Log.d("settingsStart", "Started Method Click");
-
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
@@ -77,7 +83,6 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                final LatLng MELBOURNE = new LatLng(-37.81319, 144.96298);//TODO might be unneeded
                 MapsActivity.this.googleMap = googleMap;
                 if (hasLocationPermissions()) {
                     //noinspection ResourceType
@@ -136,11 +141,21 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             locationManager.removeUpdates(this);
         }
     }
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        if(DataUtil.IS_HEATMAP){
+            heatmap.setOpacity(DataUtil.HEATMAP_OPACITY);
+        }else{
+            heatmap.setOpacity(0);
+        }
+        heatmap.setRadius(DataUtil.HEATMAP_RADIUS);
+    heatmapOverlay.clearTileCache();
+    }
 
     private void drawCrime() {
-        InputStream data = getResources().openRawResource(R.raw.random_sample_1000);
-        HeatmapTileProvider heatMap = DataUtil.getCrimeHeatMap(data);
-        googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatMap));
+        heatmap = DataUtil.getCrimeHeatMap(data);
+        heatmapOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(heatmap));
     }
 
     @Override

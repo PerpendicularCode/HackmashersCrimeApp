@@ -1,6 +1,7 @@
 package org.jointheleague.hackmashers;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.heatmaps.Gradient;
@@ -59,9 +60,6 @@ public class DataUtil {
     }
 
     public static HeatmapTileProvider getCrimeHeatMap(InputStream data) {
-        if(!IS_HEATMAP){
-            HEATMAP_OPACITY = 0f;
-        }
         ArrayList<String[]> incidents = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new InputStreamReader(data));
         try {
@@ -78,12 +76,11 @@ public class DataUtil {
         for (String[] incident : incidents) {
             locations.add(new LatLng(Double.parseDouble(incident[LAT_INDEX]), Double.parseDouble(incident[LNG_INDEX])));
         }
-
-
         return new HeatmapTileProvider.Builder()
                 .data(locations)
                 .radius(HEATMAP_RADIUS)
                 .opacity(HEATMAP_OPACITY)
                 .gradient(new Gradient(COLORS, START_POINTS)).build();
+
     }
 }
