@@ -10,7 +10,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -112,7 +111,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    switch (requestCode) {
+        switch (requestCode) {
             case REQUEST_CODE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -141,16 +140,17 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             locationManager.removeUpdates(this);
         }
     }
+
     @Override
-    public void onRestart(){
+    public void onRestart() {
         super.onRestart();
-        if(DataUtil.IS_HEATMAP){
+        if (DataUtil.IS_HEATMAP) {
             heatmap.setOpacity(DataUtil.HEATMAP_OPACITY);
-        }else{
+        } else {
             heatmap.setOpacity(0);
         }
         heatmap.setRadius(DataUtil.HEATMAP_RADIUS);
-    heatmapOverlay.clearTileCache();
+        heatmapOverlay.clearTileCache();
     }
 
     private void drawCrime() {
