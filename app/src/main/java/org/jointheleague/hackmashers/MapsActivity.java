@@ -4,15 +4,22 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -69,7 +76,23 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         autocompleteFragment.setOnPlaceSelectedListener(this);
         makeSearchBarPretty(autocompleteFragment);
         //Setup data
-        data = getResources().openRawResource(R.raw.random_sample_1000);
+        data = getResources().openRawResource(R.raw.random_sample_10000);
+
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.settings_button_background, null);
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        Canvas canvas2 = new Canvas(bitmap);
+        int color = (178 & 0xFF) << 24;
+        canvas.drawColor(color, PorterDuff.Mode.DST_IN);
+        BitmapDrawable bd = new BitmapDrawable(getResources(), bitmap);
+
+        findViewById(R.id.settingsButton).setBackground(bd);
+        findViewById(R.id.addLocButton).setBackground(bd);
+
+        ((ImageButton) findViewById(R.id.settingsButton)).setColorFilter(Color.rgb(102, 102, 102));
     }
 
     public void startSettings(View v) {
@@ -232,21 +255,22 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     private void makeSearchBarPretty(PlaceAutocompleteFragment autocompleteFragment) {
         //noinspection TryWithIdenticalCatches
         try {
-            Field searchButtonField = autocompleteFragment.getClass().getDeclaredField("zzaRh");
+            Field searchButtonField = autocompleteFragment.getClass().getDeclaredField("zzaYx");
             searchButtonField.setAccessible(true);
             ImageButton searchButton = (ImageButton) searchButtonField.get(autocompleteFragment);
-            Field clearButtonField = autocompleteFragment.getClass().getDeclaredField("zzaRi");
+            Field clearButtonField = autocompleteFragment.getClass().getDeclaredField("zzaYy");
             clearButtonField.setAccessible(true);
             ImageButton clearButton = (ImageButton) clearButtonField.get(autocompleteFragment);
-            Field searchInputField = autocompleteFragment.getClass().getDeclaredField("zzaRj");
+            Field searchInputField = autocompleteFragment.getClass().getDeclaredField("zzaYz");
             searchInputField.setAccessible(true);
             EditText searchInput = (EditText) searchInputField.get(autocompleteFragment);
 
-            searchButton.setColorFilter(Color.BLACK);
-            searchButton.setImageAlpha(Color.alpha(ContextCompat.getColor(this, R.color.halfTransparent)));
-            clearButton.setColorFilter(Color.BLACK);
-            clearButton.setImageAlpha(Color.alpha(ContextCompat.getColor(this, R.color.halfTransparent)));
+            searchButton.setColorFilter(Color.WHITE);
+            searchButton.setImageAlpha(Color.alpha(ContextCompat.getColor(this, R.color.searchButtonTransparency)));
+            clearButton.setColorFilter(Color.WHITE);
+            clearButton.setImageAlpha(Color.alpha(ContextCompat.getColor(this, R.color.searchButtonTransparency)));
             searchInput.setTextColor(ContextCompat.getColor(this, R.color.searchedText));
+            searchInput.setHintTextColor(ContextCompat.getColor(this, R.color.searchHint));
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {

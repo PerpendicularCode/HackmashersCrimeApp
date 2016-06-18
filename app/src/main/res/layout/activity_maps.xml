@@ -21,25 +21,25 @@
         tools:context=".MapsActivity">
 
         <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_margin="10dp"
-        android:alpha="0.7"
-        android:background="@drawable/settings_button_background"
-        android:onClick="startSettings"
-        android:src="@drawable/ic_setting_light" />
-
-        <ImageButton
+            android:id="@+id/settingsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|left"
-            android:layout_margin="10dp"
-            android:alpha="0.7"
+            android:layout_gravity="top|right"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="59dp"
             android:background="@drawable/settings_button_background"
             android:onClick="startSettings"
-            android:src="@drawable/ic_add_location" />
+            android:src="@drawable/ic_setting_light" />
 
+        <ImageButton
+            android:id="@+id/addLocButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="110dp"
+            android:background="@drawable/settings_button_background" />
+        <!--android:src="@drawable/ic_add_location"-->
     </fragment>
 
 </LinearLayout>

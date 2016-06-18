@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3384FF</color>
-    <color name="colorPrimaryDark">#486CA3</color>
+    <color name="colorPrimaryDark">#225197</color>
     <color name="colorAccent">#4285F4</color>
-    <color name="searchedText">#AF000000</color>
-    <color name="halfTransparent">#7F000000</color>
+    <color name="searchedText">#EFFFFFFF</color>
+    <color name="searchHint">#5FFFFFFF</color>
+    <color name="searchButtonTransparency">#CF000000</color>
 </resources>

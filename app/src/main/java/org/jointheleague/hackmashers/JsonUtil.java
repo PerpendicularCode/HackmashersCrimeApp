@@ -3,6 +3,7 @@ package org.jointheleague.hackmashers;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,8 +39,12 @@ public class JsonUtil {
     }
 
     public static LatLng[] getPointsFromDirections(JSONObject directionsJson) throws JSONException {
-        String encodedPolyline = directionsJson.getJSONObject("overview_polyline").getString("points");
-        ArrayList<LatLng> pointsList = MapUtil.decodePolyline(encodedPolyline);
+        JSONArray steps = directionsJson.getJSONArray("legs").getJSONObject(0).getJSONArray("steps");
+        ArrayList<LatLng> pointsList = new ArrayList<>();
+        for (int i = 0; i < steps.length(); i++) {
+            String encodedPolyline = steps.getJSONObject(i).getJSONObject("polyline").getString("points");
+            pointsList.addAll(MapUtil.decodePolyline(encodedPolyline));
+        }
         return pointsList.toArray(new LatLng[pointsList.size()]);
     }
 
