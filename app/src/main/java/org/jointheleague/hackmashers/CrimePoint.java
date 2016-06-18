@@ -10,6 +10,10 @@ public class CrimePoint {
 
     //Example: 100.00, 100.00: 1
     public CrimePoint(String input) {
+        parseLatLonCrime(input);
+    }
+
+    public void parseLatLonCrime(String input) {
         int split1Pos = input.indexOf(',');
         int split2Pos = input.indexOf(':');
 
@@ -37,5 +41,4 @@ public class CrimePoint {
             crimeNum = Integer.parseInt(crime);
         }
     }
-
 }

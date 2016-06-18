@@ -76,7 +76,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
         autocompleteFragment.setOnPlaceSelectedListener(this);
         makeSearchBarPretty(autocompleteFragment);
         //Setup data
-        data = getResources().openRawResource(R.raw.random_sample_10000);
+        data = getResources().openRawResource(R.raw.dummy);
 
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.settings_button_background, null);
         Canvas canvas = new Canvas();
@@ -225,6 +225,7 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
             try {
                 String url = this.routeInfo.getGoogleDirectionsURL();
                 Log.d("Directions URL", url);
+                Log.v("Zoom Amount:"," "+googleMap.getCameraPosition().zoom);
                 return JsonUtil.getJsonFromURL(url);
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -296,5 +297,11 @@ public class MapsActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onProviderDisabled(String provider) {
         Log.d("Location provider", "Location provider disabled");
+    }
+    public float getZoom() {
+        return googleMap.getCameraPosition().zoom;
+    }
+    public InputStream getData() {
+        return data;
     }
 }
